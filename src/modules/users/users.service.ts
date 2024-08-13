@@ -1,7 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import { User } from './user.entity';
 import { UserDto } from './dto/user.dto';
 import { USER_REPOSITORY } from '../../core/constants';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class UsersService {
@@ -10,7 +11,14 @@ export class UsersService {
   ) {}
 
   async create(user: UserDto): Promise<User> {
-    return await this.userRepository.create<User>(user);
+    try {
+      return await this.userRepository.create<User>(user);
+    } catch (error) {
+      if (error instanceof UniqueConstraintError) {
+        throw new ConflictException('Email already exists');
+      }
+      throw error;
+    }
   }
 
   async findOneByEmail(email: string): Promise<User> {
