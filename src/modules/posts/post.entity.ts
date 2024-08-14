@@ -23,7 +23,7 @@ export class Post extends Model<Post> {
   title: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.TEXT,
     allowNull: false,
   })
   body: string;
